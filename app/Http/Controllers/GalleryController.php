@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\GalleryService;
-use http\Env\Response;
+use Illuminate\Http\Response;
+//use http\Env\Response;
 use Illuminate\Http\Request;
 use function Illuminate\Events\queueable;
 
@@ -29,8 +30,6 @@ class GalleryController
             'galleries' => $galleries
         ],200);
     }
-
-
 
 
     public function addGall(Request $request): \Illuminate\Http\JsonResponse

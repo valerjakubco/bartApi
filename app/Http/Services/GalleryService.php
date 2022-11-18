@@ -40,7 +40,6 @@ class GalleryService
 
 
 
-
     public function addGallery($name): \stdClass
     {
         $gallery = new \stdClass();
