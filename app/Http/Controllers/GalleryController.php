@@ -30,23 +30,7 @@ class GalleryController
         ],200);
     }
 
-    public function listImg(Request $request): \Illuminate\Http\JsonResponse|\Exception
-    {
-        try {
-            $path = $request->getRequestUri();
-            $images = self::$galleryService->listImages($path);
-        } catch (\Exception $exception){
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
-        }
 
-        return response()->json([
-            'images' => $images
-        ]);
-    }
 
 
     public function addGall(Request $request): \Illuminate\Http\JsonResponse
@@ -86,39 +70,4 @@ class GalleryController
         ], 200);
     }
 
-
-    public function addImage(Request $request)
-    {
-        $path = $request->getRequestUri();
-        $file = $request->file('image');
-        try {
-            $uploaded = self::$galleryService->uploadImage($file, $path);
-        }
-         catch (\Exception $e) {
-            return response()->json([
-                'error' => [
-                    'message' => $e->getMessage()
-                ]
-            ], $e->getCode());
-        }
-        return response()->json([
-            'uploaded' => $uploaded
-        ], 200);
-    }
-
-
-
-    public function imgPreview($w, $h, $gallery, $image){
-        try {
-           $preview = self::$galleryService->showImage($w, $h, $gallery, $image);
-        } catch (\Exception $e){
-            return response()->json([
-                'error' => [
-                    'message' => $e->getMessage()
-                ]
-            ], $e->getCode());
-        }
-         return $preview;
-
-    }
 }

@@ -21,9 +21,9 @@ $router->get('/', function () use ($router) {
 $router->get('/gallery', 'GalleryController@index' );
 $router->post('/gallery', 'GalleryController@addGall');
 
-$router->get('/gallery/{path}', 'GalleryController@listImg');
+$router->get('/gallery/{path}', 'ImageController@listImg');
 $router->delete('/gallery/{path}', 'GalleryController@delGall');
-$router->post('/gallery/{path}', 'GalleryController@addImage');
+$router->post('/gallery/{path}', 'ImageController@addImage');
 
-$router->get('/images/{w}x{h}/{gallery}/images/{image}', 'GalleryController@imgPreview');
+$router->get('/images/{w}x{h}/{gallery}/images/{image}', 'ImageController@imgPreview');
 
