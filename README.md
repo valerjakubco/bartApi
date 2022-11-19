@@ -11,8 +11,10 @@ Súborový systém som spravil tak, že koreňový priečinok sa nachádza v
 *storage/galleries*. Každý pridaný album vytvorí nový priečinok v priečinku *galleries*
 a podpriečinok *images* určený na ukladanie obrázkov.
 
-- Zobrazenie zoznamu všetkých galérií - GET http://localhost:{port}/gallery
-
+- Zobrazenie zoznamu všetkých galérií:
+```shell
+GET http://localhost:{port}/gallery
+```
 
 - Vytvorenie novej galérie:  
 ```shell
