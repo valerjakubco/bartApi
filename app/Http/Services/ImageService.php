@@ -80,6 +80,31 @@ class ImageService
     }
 
 
+    public function deleteImage($gallery, $image): \Illuminate\Http\JsonResponse
+    {
+        $path = storage_path("app/galleries/${gallery}/images/");
+        $files = File::allFiles($path);
+        foreach ($files as $file) {
+            if (pathinfo(storage_path($file), PATHINFO_FILENAME) == $image) {
+                if (!File::delete($file)) {
+                    return response()->json([
+                        'message' => 'Image deletion was not successful'
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'message' => 'Image deletion was successful'
+                    ], 200);
+                }
+            }
+
+        }
+
+        return response()->json([
+            'message' => 'Image deletion was not successful'
+        ], 200);
+
+    }
+
 
     public function showImage($w, $h, $gallery, $image)
     {

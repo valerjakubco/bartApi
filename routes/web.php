@@ -25,5 +25,7 @@ $router->get('/gallery/{path}', 'ImageController@listImg');
 $router->delete('/gallery/{path}', 'GalleryController@delGall');
 $router->post('/gallery/{path}', 'ImageController@addImage');
 
+$router->delete('/gallery/{gallery}/images/{image}', 'ImageController@delImage');
+
 $router->get('/images/{w}x{h}/{gallery}/images/{image}', 'ImageController@imgPreview');
 

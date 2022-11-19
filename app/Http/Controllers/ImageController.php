@@ -68,4 +68,18 @@ class ImageController
         return $preview;
 
     }
+
+    public function delImage($gallery, $image): \Illuminate\Http\JsonResponse
+    {
+    try{
+        $deleted = self::$imageService->deleteImage($gallery, $image);
+    } catch (\Exception $e){
+        return response()->json([
+            'error' => [
+                'message' => $e->getMessage()
+            ]
+        ], $e->getCode());
+    }
+        return $deleted;
+    }
 }
