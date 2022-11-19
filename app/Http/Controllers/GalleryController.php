@@ -22,8 +22,8 @@ class GalleryController
             $galleries = self::$galleryService->listGalleries();
         } catch (\Exception $e){
             return response()->json([
-                'galleries' => []
-            ], 200);
+                'error' => $e->getMessage()
+            ], $e->getCode());
         }
 
         return response()->json([
@@ -65,7 +65,7 @@ class GalleryController
         }
 
         return response()->json([
-            'message' => 'Gallery successfuly deleted'
+            'message' => 'Gallery successfully deleted'
         ], 200);
     }
 

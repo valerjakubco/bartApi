@@ -20,12 +20,10 @@ class GalleryService
         $galleriesArr = [];
         try {
             $path = storage_path('app/galleries');
-
+            $files = File::allFiles($path);
         } catch (\Exception $e) {
-            return $e;
+            throw new \Exception("Unknown error", 500);
         }
-
-        $files = File::allFiles($path);
 
         foreach ($files as $file) {
             if (pathinfo($file, PATHINFO_EXTENSION) == 'json') {
@@ -45,7 +43,7 @@ class GalleryService
         $gallery = new \stdClass();
         $gallery->name = $name;
         $gallery->path = rawurlencode($name);
-        $tmp = str_replace(' ', '_', $name);
+        $tmp = trim($gallery->path, '/');
         try {
             mkdir(storage_path("app/galleries/$tmp/images"), 0777, true);
             file_put_contents(storage_path("app/galleries/$tmp/{$gallery->path}.json"), json_encode($gallery));
@@ -68,15 +66,6 @@ class GalleryService
     public function validateGalleryDel($path): void
     {
         $path = substr(str_replace('gallery/', '', $path), 1);
-        //echo $path;
-
-        $file = storage_path('app/galleries/' . $path);
-
-        try {
-            $galleries = $this->listGalleries();
-        } catch (\Exception $exception) {
-            throw new \Exception("Unknown Error", 500);
-        }
 
         if (!is_dir(storage_path('app/galleries/' . $path))) {
             throw new \Exception("Gallery/photo does not exists", 404);
