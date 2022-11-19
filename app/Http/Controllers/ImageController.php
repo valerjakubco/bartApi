@@ -27,7 +27,7 @@ class ImageController
         }
 
         return response()->json([
-            'images' => $images
+            'gallery' => $images
         ]);
     }
 

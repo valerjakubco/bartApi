@@ -25,11 +25,9 @@ class ImageService
         } catch (\Exception $exception) {
             throw new \Exception("Gallery does not exists", 404);
         }
-        $imagesArr[] = [
-            "gallery" => [
-                'path' => $path,
-                'name' => $path
-            ]
+        $gallery[] = [
+            'path' => $path,
+            'name' => $path
         ];
         foreach ($images as $file) {
             $image = new \stdClass();
@@ -42,8 +40,8 @@ class ImageService
                 'name' => ucfirst(pathinfo($image->name, PATHINFO_FILENAME))
             ];
         }
-
-        return $imagesArr;
+        $gallery[] = $imagesArr;
+        return $gallery;
     }
 
 
