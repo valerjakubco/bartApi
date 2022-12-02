@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Services\ErrService;
 use App\Http\Services\GalleryService;
 use Illuminate\Http\Response;
 //use http\Env\Response;
@@ -10,7 +11,7 @@ use function Illuminate\Events\queueable;
 
 class GalleryController
 {
-    private static $galleryService;
+    private static GalleryService $galleryService;
 
     public function __construct(){
         self::$galleryService = new GalleryService();
@@ -20,10 +21,8 @@ class GalleryController
     {
         try {
             $galleries = self::$galleryService->listGalleries();
-        } catch (\Exception $e){
-            return response()->json([
-                'error' => $e->getMessage()
-            ], $e->getCode());
+        } catch (\Exception $exception){
+            return ErrService::class->errResponse($exception);
         }
 
         return response()->json([
@@ -57,11 +56,7 @@ class GalleryController
             self::$galleryService->validateGalleryDel($path);
             self::$galleryService->deleteGallery($path);
         } catch (\Exception $exception) {
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return ErrService::class->errResponse($exception);
         }
 
         return response()->json([
@@ -69,4 +64,8 @@ class GalleryController
         ], 200);
     }
 
+
+
 }
+
+

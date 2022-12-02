@@ -11,6 +11,8 @@ use Illuminate\Filesystem\Filesystem;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManagerStatic;
 
+define("GAL_PATH", "app/galleries/");
+
 
 class GalleryService
 {
@@ -44,9 +46,9 @@ class GalleryService
         $gallery->name = $name;
         $gallery->path = rawurlencode($name);
         $tmp = trim($gallery->path, '/');
+
         try {
             mkdir(storage_path("app/galleries/$tmp/images"), 0777, true);
-            file_put_contents(storage_path("app/galleries/$tmp/{$gallery->path}.json"), json_encode($gallery));
         } catch (\Exception $exception) {
             throw new \Exception('Unknown Error', 500);
         }
@@ -67,7 +69,7 @@ class GalleryService
     {
         $path = substr(str_replace('gallery/', '', $path), 1);
 
-        if (!is_dir(storage_path('app/galleries/' . $path))) {
+        if (!is_dir(storage_path(GAL_PATH . $path))) {
             throw new \Exception("Gallery/photo does not exists", 404);
         }
 
@@ -78,18 +80,14 @@ class GalleryService
 
         if ($name) {
 
-            $name = str_replace(' ', '_', $name);
-
             try {
                 $galleries = $this->listGalleries();
             } catch (\Exception $exception) {
                 throw new \Exception('Unknown Error', 500);
             }
-
-            foreach ($galleries as $gallery) {
-                if ($gallery["name"] == $name) {
-                    throw new \Exception("Gallery with this name already exists", 409);
-                }
+            $name = rawurlencode($name);
+            if(is_dir(storage_path(GAL_PATH . "$name"))){
+                throw new \Exception("Gallery with this name already exists", 409);
             }
 
         } else {

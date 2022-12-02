@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Http\Services\ImageService;
+use App\Http\Services\ErrService;
 use Illuminate\Http\Request;
 
 class ImageController
@@ -19,11 +20,7 @@ class ImageController
             $path = $request->getRequestUri();
             $images = self::$imageService->listImages($path);
         } catch (\Exception $exception){
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return ErrService::class->errResponse($exception);
         }
 
         return response()->json([
@@ -41,12 +38,8 @@ class ImageController
         try {
             $uploaded = self::$imageService->uploadImage($file, $path);
         }
-        catch (\Exception $e) {
-            return response()->json([
-                'error' => [
-                    'message' => $e->getMessage()
-                ]
-            ], $e->getCode());
+        catch (\Exception $exception) {
+            return ErrService::class->errResponse($exception);
         }
         return response()->json([
             'uploaded' => $uploaded
@@ -58,12 +51,8 @@ class ImageController
     {
         try {
             $preview = self::$imageService->showImage($w, $h, $gallery, $image);
-        } catch (\Exception $e){
-            return response()->json([
-                'error' => [
-                    'message' => $e->getMessage()
-                ]
-            ], $e->getCode());
+        } catch (\Exception $exception){
+            return ErrService::class->errResponse($exception);
         }
         return $preview;
 
@@ -73,13 +62,10 @@ class ImageController
     {
     try{
         $deleted = self::$imageService->deleteImage($gallery, $image);
-    } catch (\Exception $e){
-        return response()->json([
-            'error' => [
-                'message' => $e->getMessage()
-            ]
-        ], $e->getCode());
+    } catch (\Exception $exception){
+        return ErrService::class->errResponse($exception);
     }
         return $deleted;
     }
+
 }

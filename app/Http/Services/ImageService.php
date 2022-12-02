@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Response;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManagerStatic;
 
+define("GAL_PATH", "app/galleries/");
 class ImageService
-{
 
+
+{
 
     public function listImages($path): array|string
     {
@@ -18,7 +20,7 @@ class ImageService
         $imagesArr = [];
         $path = substr(str_replace('gallery/', '', $path), 1);
         $path = trim($path, '/');
-        $fullPath = storage_path("app/galleries/" . $path . "/images");
+        $fullPath = storage_path(GAL_PATH . $path . "/images");
 
         try {
             $images = File::allFiles($fullPath);
@@ -54,11 +56,11 @@ class ImageService
             throw new \Exception("File is not valid");
         }
         $path = str_replace('/gallery/', '', $path);
-        if (!file_exists(storage_path('app/galleries/' . trim($path, '/') . '/'))) {
+        if (!file_exists(storage_path(GAL_PATH . trim($path, '/') . '/'))) {
             throw new \Exception("Gallery not found.", 404);
         }
         try {
-            $filepath = storage_path('app/galleries/' . $path . '/images/');
+            $filepath = storage_path(GAL_PATH . $path . '/images/');
         } catch (\Exception $exception) {
             throw new \Exception("Gallery not found", 404);
         }
@@ -82,7 +84,7 @@ class ImageService
 
     public function deleteImage($gallery, $image): \Illuminate\Http\JsonResponse
     {
-        $path = storage_path("app/galleries/${gallery}/images/");
+        $path = storage_path(GAL_PATH . "${gallery}/images/");
         $files = File::allFiles($path);
         foreach ($files as $file) {
             if (pathinfo(storage_path($file), PATHINFO_FILENAME) == $image) {
@@ -108,7 +110,7 @@ class ImageService
 
     public function showImage($w, $h, $gallery, $image)
     {
-        $path = storage_path("app/galleries/${gallery}/images");
+        $path = storage_path(GAL_PATH . "${gallery}/images");
 
         $images = File::allFiles($path);
 
