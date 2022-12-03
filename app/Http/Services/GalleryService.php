@@ -19,23 +19,23 @@ class GalleryService
 
     public function listGalleries(): \Exception|array
     {
-        $galleriesArr = [];
+        $galleries = [];
         try {
-            $path = storage_path('app/galleries');
-            $files = File::allFiles($path);
+            $path = storage_path('app/galleries/');
+            $files = scandir($path);
+            unset($files[0], $files[1]);
         } catch (\Exception $e) {
             throw new \Exception("Unknown error", 500);
         }
-
         foreach ($files as $file) {
-            if (pathinfo($file, PATHINFO_EXTENSION) == 'json') {
-                $json = json_decode(file_get_contents($file), true);
-                $galleriesArr[] = $json;
-            }
+            $gallery = new \stdClass();
+            $gallery->path = $file;
+            $gallery->name = rawurldecode($file);
+            $galleries[] = $gallery;
         }
 
 
-        return $galleriesArr;
+        return $galleries;
     }
 
 
@@ -48,7 +48,7 @@ class GalleryService
         $tmp = trim($gallery->path, '/');
 
         try {
-            mkdir(storage_path("app/galleries/$tmp/images"), 0777, true);
+            mkdir(storage_path("app/galleries/$tmp"), 0777, true);
         } catch (\Exception $exception) {
             throw new \Exception('Unknown Error', 500);
         }

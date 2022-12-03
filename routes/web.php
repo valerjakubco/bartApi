@@ -18,14 +18,14 @@ $router->get('/', function () use ($router) {
 });
 
 
-$router->get('/gallery', 'GalleryController@index' );
+$router->get('/gallery', 'GalleryController@index');
 $router->post('/gallery', 'GalleryController@addGall');
 
 $router->get('/gallery/{path}', 'ImageController@listImg');
 $router->delete('/gallery/{path}', 'GalleryController@delGall');
 $router->post('/gallery/{path}', 'ImageController@addImage');
 
-$router->delete('/gallery/{gallery}/images/{image}', 'ImageController@delImage');
+$router->delete('/gallery/{gallery}/{image}', 'ImageController@delImage');
 
-$router->get('/images/{w}x{h}/{gallery}/images/{image}', 'ImageController@imgPreview');
+$router->get('/images/{w}x{h}/{gallery}/{image}', 'ImageController@imgPreview');
 

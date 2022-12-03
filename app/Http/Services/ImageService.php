@@ -7,43 +7,51 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManagerStatic;
+use Illuminate\Support\Facades\Cache;
 
 define("GAL_PATH", "app/galleries/");
+
+
 class ImageService
 
 
 {
 
-    public function listImages($path): array|string
+    public function listImages($path, $sorting): \stdClass
     {
-
+        if($sorting === 'asc'){ $sorting = 3; } elseif ($sorting === 'desc'){ $sorting =  4;} else {$sorting = 3;}
         $imagesArr = [];
         $path = substr(str_replace('gallery/', '', $path), 1);
         $path = trim($path, '/');
-        $fullPath = storage_path(GAL_PATH . $path . "/images");
+        $fullPath = storage_path(GAL_PATH . $path);
+
 
         try {
             $images = File::allFiles($fullPath);
         } catch (\Exception $exception) {
             throw new \Exception("Gallery does not exists", 404);
         }
-        $gallery[] = [
-            'path' => $path,
-            'name' => $path
-        ];
+        $gallery = new \stdClass();
+        $gallery->path = $path;
+        $gallery->name = rawurldecode($path);
+
+
         foreach ($images as $file) {
             $image = new \stdClass();
-            $image->name = $file->getFilename();
-            $image->path = $path . '/images/' . $file->getFilename();
+            $image->path = $file->getFilename();
+            $image->fullpath = $path . '/' . $file->getFilename();
+            $image->name = $file->getFilenameWithoutExtension();
+            $image->modified = date("Y-m-d\Th:i:s",filemtime($file));
 
-            $imagesArr[] = [
-                'path' => $image->name,
-                'fullpath' => $image->path,
-                'name' => ucfirst(pathinfo($image->name, PATHINFO_FILENAME))
-            ];
+            $imagesArr[] = $image;
         }
-        $gallery[] = $imagesArr;
-        return $gallery;
+
+        $out = new \stdClass();
+        $out->gallery = $gallery;
+        $times = array_column($imagesArr, 'modified');
+        array_multisort($times, $sorting, $imagesArr);
+        $out->images = $imagesArr;
+        return $out;
     }
 
 
@@ -60,7 +68,7 @@ class ImageService
             throw new \Exception("Gallery not found.", 404);
         }
         try {
-            $filepath = storage_path(GAL_PATH . $path . '/images/');
+            $filepath = storage_path(GAL_PATH . $path);
         } catch (\Exception $exception) {
             throw new \Exception("Gallery not found", 404);
         }
@@ -69,13 +77,12 @@ class ImageService
 
         $file->move($filepath, $filename);
         $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-
         $uploaded = [];
         $uploaded[] = [
             'path' => $filename,
-            'fullpath' => "${path}/${filename}",
+            'fullpath' => "${path}${filename}",
             'name' => $name,
-            'modified' => Carbon::now()->addHours(2)
+            'modified' => Carbon::now()->addHour(1)->format("Y-m-d\TH:i:s")
         ];
 
         return $uploaded;
@@ -84,14 +91,15 @@ class ImageService
 
     public function deleteImage($gallery, $image): \Illuminate\Http\JsonResponse
     {
-        $path = storage_path(GAL_PATH . "${gallery}/images/");
+        $path = storage_path(GAL_PATH . "${gallery}");
+
+
         $files = File::allFiles($path);
+
         foreach ($files as $file) {
             if (pathinfo(storage_path($file), PATHINFO_FILENAME) == $image) {
                 if (!File::delete($file)) {
-                    return response()->json([
-                        'message' => 'Image deletion was not successful'
-                    ], 200);
+                    throw new \Exception("Image deletion was not successful", 200);
                 } else {
                     return response()->json([
                         'message' => 'Image deletion was successful'
@@ -108,12 +116,11 @@ class ImageService
     }
 
 
-    public function showImage($w, $h, $gallery, $image)
+    public function showImage($w, $h, $gallery, $image): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Exception
     {
-        $path = storage_path(GAL_PATH . "${gallery}/images");
+        $path = storage_path(GAL_PATH . "${gallery}");
 
         $images = File::allFiles($path);
-
         if (ctype_digit($w)) {
             $w = intval($w);
             if ($w < 0 || $w > 9000) {
@@ -148,23 +155,30 @@ class ImageService
             ], 500);
         }
 
-        foreach ($images as $img){
+        foreach ($images as $img) {
 
-            if (pathinfo(storage_path($img), PATHINFO_FILENAME) == pathinfo(storage_path($image), PATHINFO_FILENAME)){
-                $img = Image::make($img->getRealPath());
+            if (pathinfo(storage_path($img), PATHINFO_FILENAME) == pathinfo(storage_path($image), PATHINFO_FILENAME)) {
+
+
                 try {
-                    if($w == 0 && $h != 0){
-                        $img->resize(null, $h, function ($constraint){
+
+                    $img = Image::make($img->getRealPath());
+
+
+
+                    if ($w == 0 && $h != 0) {
+                        $img->resize(null, $h, function ($constraint) {
                             $constraint->aspectRatio();
                         });
-                    } elseif ($w != 0 && $h == 0){
-                        $img->resize($w, null, function ($constraint){
+                    } elseif ($w != 0 && $h == 0) {
+                        $img->resize($w, null, function ($constraint) {
                             $constraint->aspectRatio();
                         });
-                    } elseif ($w != 0 && $h != 0){
+                    } elseif ($w != 0 && $h != 0) {
                         $img->fit($w, $h);
                     }
-                } catch (\Exception $exception){
+                } catch (\Exception $exception) {
+
                     return response()->json([
                         'error' => [
                             'message' => "The photo preview can't be generated."
@@ -173,7 +187,6 @@ class ImageService
                 }
 
                 return Response::make(ImageManagerStatic::make($img)->encode('jpg'), 200, ['Content-Type' => 'image/jpeg']);
-
             } else {
                 return Response::json([
                     "error" => [
@@ -181,6 +194,8 @@ class ImageService
                     ]
                 ], 404);
             }
+
+
         }
 
         return Response::json([

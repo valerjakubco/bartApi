@@ -22,7 +22,11 @@ class GalleryController
         try {
             $galleries = self::$galleryService->listGalleries();
         } catch (\Exception $exception){
-            return ErrService::class->errResponse($exception);
+            return response()->json([
+                'error' => [
+                    'message' => $exception->getMessage()
+                ]
+            ], $exception->getCode());
         }
 
         return response()->json([
@@ -49,16 +53,19 @@ class GalleryController
     }
 
 
-    public function delGall(Request $request): \Illuminate\Http\JsonResponse
+    public function delGall(Request $request): bool|string
     {
         try {
             $path = $request->getRequestUri();
             self::$galleryService->validateGalleryDel($path);
             self::$galleryService->deleteGallery($path);
         } catch (\Exception $exception) {
-            return ErrService::class->errResponse($exception);
+            return response()->json([
+                'error' => [
+                    'message' => $exception->getMessage()
+                ]
+            ], $exception->getCode());
         }
-
         return response()->json([
             'message' => 'Gallery successfully deleted'
         ], 200);
