@@ -83,6 +83,8 @@ class ImageService
             throw new \Exception("File is not valid");
         }
         $path = str_replace('/gallery/', '', $path);
+        echo $path;
+        exit();
         if (!file_exists(storage_path(GAL_PATH . trim($path, '/') . '/'))) {
             throw new \Exception("Gallery not found.", 404);
         }
@@ -111,8 +113,7 @@ class ImageService
     public function deleteImage($gallery, $image): \Illuminate\Http\JsonResponse
     {
         $path = storage_path(GAL_PATH . "${gallery}");
-        echo $path;
-        exit;
+
 
         $files = File::allFiles($path);
 
