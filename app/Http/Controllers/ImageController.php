@@ -10,9 +10,13 @@ class ImageController
 {
 
     private static ImageService $imageService;
+    private static ErrService $errService;
+
 
     public function __construct(){
         self::$imageService = new ImageService();
+        self::$errService = new ErrService();
+
     }
 
     public function listImg(Request $request): \Illuminate\Http\JsonResponse|\Exception
@@ -23,11 +27,8 @@ class ImageController
             $path = $request->getPathInfo();
             $images = self::$imageService->listImages($path, $sorting);
         } catch (\Exception $exception){
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
+
         }
 
         return response()->json($images);
@@ -40,15 +41,13 @@ class ImageController
     {
         $path = $request->getRequestUri();
         $file = $request->file('image');
+
         try {
             $uploaded = self::$imageService->uploadImage($file, $path);
         }
         catch (\Exception $exception) {
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
+
         }
         return response()->json([
             'uploaded' => $uploaded
@@ -61,11 +60,8 @@ class ImageController
         try {
             $preview = self::$imageService->showImage($w, $h, $gallery, $image);
         } catch (\Exception $exception){
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
+
         }
         return $preview;
 
@@ -73,8 +69,8 @@ class ImageController
 
     public function delImage($gallery, $image, $extension): \Illuminate\Http\JsonResponse
     {
-        echo $gallery, $image, $extension;
-        exit;
+
+
         try{
             $deleted = self::$imageService->deleteImage($gallery, $image, $extension);
         } catch (\Exception $exception){

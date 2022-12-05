@@ -48,21 +48,18 @@ class GalleryController
     }
 
 
-    public function delGall(Request $request): bool|string
+    public function delGall($path): \Illuminate\Http\JsonResponse
     {
         try {
-            $path = $request->getRequestUri();
+//            $path = $request->getRequestUri();
+
             self::$galleryService->validateGalleryDel($path);
             self::$galleryService->deleteGallery($path);
         } catch (\Exception $exception) {
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
         }
         return response()->json([
-            'message' => 'Gallery successfully deleted'
+            'message' => 'Gallery/photo was deleted'
         ], 200);
     }
 

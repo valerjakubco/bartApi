@@ -24,7 +24,7 @@ class GalleryService
     {
         $galleries = [];
         try {
-            $path = storage_path('app/galleries/');
+            $path = storage_path(GAL_PATH);
             $files = scandir($path);
             unset($files[0], $files[1]);
         } catch (\Exception $e) {
@@ -48,7 +48,7 @@ class GalleryService
                     }
                 }
             } catch (\Exception $exception) {
-                ;
+                throw new \Exception("Unknown error", 500);
             }
         }
         return $galleries;
@@ -58,13 +58,15 @@ class GalleryService
 
     public function addGallery($name): \stdClass
     {
+
         $gallery = new \stdClass();
         $gallery->name = $name;
         $gallery->path = rawurlencode($name);
         $tmp = trim($gallery->path, '/');
 
+
         try {
-            mkdir(storage_path("app/galleries/$tmp"), 0777, true);
+            mkdir(storage_path(GAL_PATH . "$tmp"), 755, true);
         } catch (\Exception $exception) {
             throw new \Exception('Unknown Error', 500);
         }
@@ -75,16 +77,23 @@ class GalleryService
 
     public function deleteGallery($path): void
     {
-        $path = str_replace('gallery/', '', $path);
-        $file = storage_path('app/galleries' . $path);
-        File::deleteDirectory($file);
+
+
+//        $path = str_replace('gallery/', '', $path);
+//        $path = trim($path, '/');
+        $file = storage_path( GAL_PATH . $path);
+
+        try {
+            File::deleteDirectory($file);
+        } catch (\Exception $exception){
+            throw new \Exception("Unknown error", 500);
+        }
+
     }
 
 
     public function validateGalleryDel($path): void
     {
-        $path = substr(str_replace('gallery/', '', $path), 1);
-
         if (!is_dir(storage_path(GAL_PATH . $path))) {
             throw new \Exception("Gallery/photo does not exists", 404);
         }
