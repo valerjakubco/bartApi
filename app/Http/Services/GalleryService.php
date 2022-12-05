@@ -11,11 +11,14 @@ use Illuminate\Filesystem\Filesystem;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManagerStatic;
 
-define("GAL_PATH", "app/galleries/");
 
 
 class GalleryService
 {
+    public function __construct()
+    {
+        if (!defined('GAL_PATH')) define('GAL_PATH', 'app/galleries/');
+    }
 
     public function listGalleries(): \Exception|array
     {
@@ -34,7 +37,20 @@ class GalleryService
             $galleries[] = $gallery;
         }
 
-
+        if (count($galleries) > 0) {
+            try {
+                $imageService = new ImageService();
+                //pridanie prveho obrazku ku galerii
+                foreach ($galleries as $gallery) {
+                    $image = $imageService->getTitleImage($gallery);
+                    if ($image) {
+                        $gallery->image = $image;
+                    }
+                }
+            } catch (\Exception $exception) {
+                ;
+            }
+        }
         return $galleries;
     }
 

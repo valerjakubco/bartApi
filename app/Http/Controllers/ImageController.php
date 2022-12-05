@@ -71,19 +71,19 @@ class ImageController
 
     }
 
-    public function delImage(Request $request): \Illuminate\Http\JsonResponse
+    public function delImage($gallery, $image, $extension): \Illuminate\Http\JsonResponse
     {
-        echo $request->getUri();
-        exit();
-    try{
-        $deleted = self::$imageService->deleteImage($gallery, $image);
-    } catch (\Exception $exception){
-        return response()->json([
-            'error' => [
-                'message' => $exception->getMessage()
-            ]
-        ], $exception->getCode());
-    }
+        echo $gallery, $image, $extension;
+        exit;
+        try{
+            $deleted = self::$imageService->deleteImage($gallery, $image, $extension);
+        } catch (\Exception $exception){
+            return response()->json([
+                'error' => [
+                    'message' => $exception->getMessage()
+                ]
+            ], $exception->getCode());
+        }
         return $deleted;
     }
 

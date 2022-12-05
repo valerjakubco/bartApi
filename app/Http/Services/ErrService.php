@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\Response;
 
 class ErrService
 {
-    public function errResponse($exception)
+    public function errResponse($message, $code)
     {
         return response()->json([
         'error' => [
-            'message' => $exception->getMessage()
+            'message' => $message
         ]
-    ], $exception->getCode());
+    ], $code);
     }
 }

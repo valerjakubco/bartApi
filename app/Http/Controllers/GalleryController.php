@@ -12,9 +12,12 @@ use function Illuminate\Events\queueable;
 class GalleryController
 {
     private static GalleryService $galleryService;
+    private static ErrService $errService;
 
     public function __construct(){
         self::$galleryService = new GalleryService();
+        self::$errService = new ErrService();
+
     }
 
     public function index(Request $request): \Illuminate\Http\JsonResponse
@@ -22,11 +25,7 @@ class GalleryController
         try {
             $galleries = self::$galleryService->listGalleries();
         } catch (\Exception $exception){
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
         }
 
         return response()->json([
@@ -42,11 +41,7 @@ class GalleryController
             self::$galleryService->validateGallery($name);
             $newGallery = self::$galleryService->addGallery($name);
         } catch (\Exception $exception) {
-            return response()->json([
-                'error' => [
-                    'message' => $exception->getMessage()
-                ]
-            ], $exception->getCode());
+            return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
         }
 
         return response()->json($newGallery, 201);

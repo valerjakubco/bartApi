@@ -9,13 +9,38 @@ use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManagerStatic;
 use Illuminate\Support\Facades\Cache;
 
-define("GAL_PATH", "app/galleries/");
-
-
 class ImageService
 
 
 {
+    public function __construct()
+    {
+        if (!defined('GAL_PATH')) define('GAL_PATH', 'app/galleries/');
+    }
+
+    public function getTitleImage($gallery) {
+        $path = $gallery->path;
+        $fullPath = storage_path(GAL_PATH . $path);
+        try {
+            $files = File::allFiles($fullPath);
+        } catch (\Exception $exception) {
+            return null;
+        }
+
+        if (isset($files) && isset($files[0])) {
+            return $this->handleImageObject($path, $files[0]);
+        }
+        return null;
+    }
+
+    public function handleImageObject($path, $file) {
+        $image = new \stdClass();
+        $image->path = $file->getFilename();
+        $image->fullpath = $path . '/' . $file->getFilename();
+        $image->name = $file->getFilenameWithoutExtension();
+        $image->modified = date("Y-m-d\Th:i:s",filemtime($file));
+        return $image;
+    }
 
     public function listImages($path, $sorting): \stdClass
     {
@@ -37,13 +62,7 @@ class ImageService
 
 
         foreach ($images as $file) {
-            $image = new \stdClass();
-            $image->path = $file->getFilename();
-            $image->fullpath = $path . '/' . $file->getFilename();
-            $image->name = $file->getFilenameWithoutExtension();
-            $image->modified = date("Y-m-d\Th:i:s",filemtime($file));
-
-            $imagesArr[] = $image;
+            $imagesArr[] = $this->handleImageObject($path, $file);
         }
 
         $out = new \stdClass();
@@ -92,7 +111,8 @@ class ImageService
     public function deleteImage($gallery, $image): \Illuminate\Http\JsonResponse
     {
         $path = storage_path(GAL_PATH . "${gallery}");
-
+        echo $path;
+        exit;
 
         $files = File::allFiles($path);
 
