@@ -4,8 +4,16 @@ nie je odporúčaný, ale pre toto zadanie som sa ho rozhodol aj tak zvoliť.
 Pre spustenie je potrebne nainštalovať packages. Môžeme využiť manager composer
 a nainštalovať príkazom "**composer install**". ~~Použitý server je vstavaný php server, 
 vieme ho spustiť príkazom "**php -S localhost:{port} -t public/**" . Port môžeme použiť 
-hocijaký voľný.~~ Pre spustenie servera som použil Symfony development server.
+hocijaký voľný.~~ Pre spustenie servera som použil Symfony development server. Ak nie je nainštalovaný
+Symfony binarny subor, je potrebné ho doinštalovať
 
+```
+wget https://get.symfony.com/cli/installer -O - | bash
+```
+Alebo
+```
+curl -sS https://get.symfony.com/cli/installer | bash
+```
 Server spustíme jednoducho príkazom
 ```
 symfony server:start
