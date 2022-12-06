@@ -58,10 +58,10 @@ class ImageController
     }
 
 
-    public function imgPreview($w, $h, $gallery, $image): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+    public function imgPreview($w, $h, $gallery, $image, $extension): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
     {
         try {
-            $preview = self::$imageService->showImage($w, $h, $gallery, $image);
+            $preview = self::$imageService->showImage($w, $h, $gallery, $image, $extension);
         } catch (\Exception $exception){
             return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
 

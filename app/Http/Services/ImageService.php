@@ -12,13 +12,13 @@ class ImageService
 
 
 {
-    private static GalleryService $galleryService;
+//    private static GalleryService $galleryService;
     private static ErrService $errService;
 
     public function __construct()
     {
         if (!defined('GAL_PATH')) define('GAL_PATH', 'app/galleries/');
-        self::$galleryService = new GalleryService();
+//        self::$galleryService = new GalleryService();
         self::$errService = new ErrService();
     }
 
@@ -138,10 +138,10 @@ class ImageService
         }
     }
 
-    public function showImage($w, $h, $gallery, $image): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Exception
+    public function showImage($w, $h, $gallery, $image, $extension): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Exception
     {
         $path = storage_path(GAL_PATH . "${gallery}");
-
+        $image = $image . '.' . $extension;
         $images = File::allFiles($path);
         if (ctype_digit($w)) {
             $w = intval($w);
