@@ -31,6 +31,7 @@ class GalleryService
             throw new \Exception("Unknown error", 500);
         }
         foreach ($files as $file) {
+            if($file == '.gitkeep'){continue;}
             $gallery = new \stdClass();
             $gallery->path = $file;
             $gallery->name = rawurldecode($file);
