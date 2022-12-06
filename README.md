@@ -66,3 +66,17 @@ je názov obrázka v danej galérii.
 ```shell
 GET http://localhost:{port}/{w}x{h}/{gallery}/{image}
 ```
+
+---
+
+Sortovanie obrázkov môžeme spraviť následujúcim spôsobom
+
+```
+GET http://localhost:{port}/{nazov_galerie}?sort=asc
+```
+Alebo
+```
+GET http://localhost:{port}/{nazov_galerie}?sort=desc
+```
+Defaultne sú obrázky podľa dátumu ascending, ale môžeme to aj tak zadať, na descending použijeme
+*desc*.
