@@ -2,7 +2,11 @@
 API beží na frameworku Lumen (9.1.5) (Laravel Components ^9.21). Framework už síce
 nie je odporúčaný, ale pre toto zadanie som sa ho rozhodol aj tak zvoliť.
 Pre spustenie je potrebne nainštalovať packages. Môžeme využiť manager composer
-a nainštalovať príkazom "**composer install**". ~~Použitý server je vstavaný php server, 
+a nainštalovať príkazom:
+```
+composer install
+```
+~~Použitý server je vstavaný php server, 
 vieme ho spustiť príkazom "**php -S localhost:{port} -t public/**" . Port môžeme použiť 
 hocijaký voľný.~~ Pre spustenie servera som použil Symfony development server. Ak nie je nainštalovaný
 Symfony binarny subor, je potrebné ho doinštalovať
