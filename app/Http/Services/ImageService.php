@@ -7,15 +7,19 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManagerStatic;
-use Illuminate\Support\Facades\Cache;
 
 class ImageService
 
 
 {
+    private static GalleryService $galleryService;
+    private static ErrService $errService;
+
     public function __construct()
     {
         if (!defined('GAL_PATH')) define('GAL_PATH', 'app/galleries/');
+        self::$galleryService = new GalleryService();
+        self::$errService = new ErrService();
     }
 
     public function getTitleImage($gallery) {
@@ -80,28 +84,29 @@ class ImageService
     {
 
         if (!$file || !$file->isValid()) {
-            throw new \Exception("File is not valid");
+            throw new \Exception("File is not valid", 500);
         }
+
+
         $path = str_replace('/gallery/', '', $path);
-        echo $path;
-        exit();
+
         if (!file_exists(storage_path(GAL_PATH . trim($path, '/') . '/'))) {
             throw new \Exception("Gallery not found.", 404);
         }
         try {
             $filepath = storage_path(GAL_PATH . $path);
+
+
         } catch (\Exception $exception) {
             throw new \Exception("Gallery not found", 404);
         }
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.' . $file->clientExtension();
-
-
         $file->move($filepath, $filename);
         $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $uploaded = [];
         $uploaded[] = [
             'path' => $filename,
-            'fullpath' => "${path}${filename}",
+            'fullpath' => "${path}/${filename}",
             'name' => $name,
             'modified' => Carbon::now()->addHour(1)->format("Y-m-d\TH:i:s")
         ];
@@ -110,32 +115,28 @@ class ImageService
     }
 
 
-    public function deleteImage($gallery, $image): \Illuminate\Http\JsonResponse
+    public function deleteImage($gallery, $image)
     {
-        $path = storage_path(GAL_PATH . "${gallery}");
+        try {
+            $file =  storage_path() . '/' . GAL_PATH . $gallery . '/' . $image;
+
+            self::validateImageDel($file);
+            File::delete($file);
 
 
-        $files = File::allFiles($path);
-
-        foreach ($files as $file) {
-            if (pathinfo(storage_path($file), PATHINFO_FILENAME) == $image) {
-                if (!File::delete($file)) {
-                    throw new \Exception("Image deletion was not successful", 200);
-                } else {
-                    return response()->json([
-                        'message' => 'Image deletion was successful'
-                    ], 200);
-                }
-            }
-
+        } catch (\Exception $exception){
+            return self::$errService->errResponse($exception->getMessage(), $exception->getCode());
         }
-
         return response()->json([
-            'message' => 'Image deletion was not successful'
+            'message' => 'Gallery/photo was deleted'
         ], 200);
 
     }
-
+    public function validateImageDel($image){
+        if(!is_file($image)){
+            throw new \Exception("Gallery/photo does not exists", 404);
+        }
+    }
 
     public function showImage($w, $h, $gallery, $image): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Exception
     {
@@ -178,7 +179,7 @@ class ImageService
 
         foreach ($images as $img) {
 
-            if (pathinfo(storage_path($img), PATHINFO_FILENAME) == pathinfo(storage_path($image), PATHINFO_FILENAME)) {
+            if (basename($img) == $image) {
 
 
                 try {

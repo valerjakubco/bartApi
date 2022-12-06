@@ -42,7 +42,10 @@ class ImageController
         $path = $request->getRequestUri();
         $file = $request->file('image');
 
+
+
         try {
+
             $uploaded = self::$imageService->uploadImage($file, $path);
         }
         catch (\Exception $exception) {
@@ -69,10 +72,9 @@ class ImageController
 
     public function delImage($gallery, $image, $extension): \Illuminate\Http\JsonResponse
     {
-
-
         try{
-            $deleted = self::$imageService->deleteImage($gallery, $image, $extension);
+            $image = $image . '.' . $extension;
+            $deleted = self::$imageService->deleteImage($gallery, $image);
         } catch (\Exception $exception){
             return response()->json([
                 'error' => [

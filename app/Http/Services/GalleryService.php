@@ -66,7 +66,7 @@ class GalleryService
 
 
         try {
-            mkdir(storage_path(GAL_PATH . "$tmp"), 755, true);
+            mkdir(storage_path(GAL_PATH . "$tmp"), 0766, true);
         } catch (\Exception $exception) {
             throw new \Exception('Unknown Error', 500);
         }
